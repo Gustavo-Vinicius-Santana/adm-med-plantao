@@ -1,10 +1,16 @@
 package br.com.projeto_med.adm_med.model;
 
 import jakarta.persistence.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import java.util.Collection;
+import java.util.Collections;
 
 @Entity
 @Table(name = "usuarios")
-public class Usuario {
+public class Usuario implements UserDetails {
 
     public enum TipoUsuario {
         COORDENADOR,
@@ -21,6 +27,9 @@ public class Usuario {
 
     @Column(nullable = false, unique = true, length = 120)
     private String email;
+
+    @Column(nullable = false)
+    private String senha;
 
     @Column(length = 20)
     private String telefone;
@@ -54,7 +63,46 @@ public class Usuario {
         this.tipo = tipo;
     }
 
-    // Getters e Setters
+    // Métodos da interface UserDetails
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        // Converte o TipoUsuario para uma autoridade Spring Security
+        // Ex: "COORDENADOR" -> "ROLE_COORDENADOR"
+        String role = "ROLE_" + this.tipo.name();
+        return Collections.singletonList(new SimpleGrantedAuthority(role));
+    }
+
+    @Override
+    public String getPassword() {
+        return this.senha;
+    }
+
+    @Override
+    public String getUsername() {
+        return this.email; // Usamos o email como username
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true; // Conta nunca expira
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true; // Conta nunca é bloqueada
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true; // Credenciais nunca expiram
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true; // Usuário sempre está habilitado
+    }
+
+    // Getters e Setters (mantidos da versão original)
     public Long getId() {
         return id;
     }
@@ -74,6 +122,13 @@ public class Usuario {
     }
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getSenha() {
+        return senha;
+    }
+    public void setSenha(String senha) {
+        this.senha = senha;
     }
 
     public String getTelefone() {

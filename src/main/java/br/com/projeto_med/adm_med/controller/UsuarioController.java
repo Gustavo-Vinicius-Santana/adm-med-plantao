@@ -3,6 +3,7 @@ package br.com.projeto_med.adm_med.controller;
 import br.com.projeto_med.adm_med.model.Usuario;
 import br.com.projeto_med.adm_med.service.UsuarioService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -12,9 +13,11 @@ import java.util.List;
 public class UsuarioController {
 
     private final UsuarioService service;
+    private final PasswordEncoder passwordEncoder; // injetado aqui
 
-    public UsuarioController(UsuarioService service) {
+    public UsuarioController(UsuarioService service, PasswordEncoder passwordEncoder) {
         this.service = service;
+        this.passwordEncoder = passwordEncoder; // atribuído no construtor
     }
 
     // Listar todos os usuários
@@ -35,6 +38,8 @@ public class UsuarioController {
     // Criar um novo usuário
     @PostMapping
     public ResponseEntity<Usuario> criar(@RequestBody Usuario usuario) {
+        // Criptografa a senha antes de salvar
+        usuario.setSenha(passwordEncoder.encode(usuario.getSenha()));
         Usuario salvo = service.salvar(usuario);
         return ResponseEntity.ok(salvo);
     }
