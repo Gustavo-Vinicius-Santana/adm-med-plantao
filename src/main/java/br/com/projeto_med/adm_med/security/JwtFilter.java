@@ -13,12 +13,20 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.List;
 
 @Component
 public class JwtFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
     private final UsuarioService usuarioService;
+
+    // Lista de rotas públicas organizadas
+    private static final List<PublicRoute> PUBLIC_ROUTES = List.of(
+            new PublicRoute("/", "ALL"), // Rota raiz - todos os métodos
+            new PublicRoute("/auth", "ALL"), // Todas as rotas de auth
+            new PublicRoute("/usuarios", "POST") // Apenas POST em /usuarios
+    );
 
     public JwtFilter(JwtUtil jwtUtil, UsuarioService usuarioService) {
         this.jwtUtil = jwtUtil;
@@ -30,9 +38,8 @@ public class JwtFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
 
-        // Para rotas públicas, apenas passa adiante
-        if (request.getServletPath().startsWith("/auth") ||
-                (request.getMethod().equals("POST") && request.getServletPath().equals("/usuarios"))) {
+        // Verifica se é uma rota pública
+        if (isPublicRoute(request)) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -67,11 +74,43 @@ public class JwtFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
+    // Método para verificar se a rota é pública
+    private boolean isPublicRoute(HttpServletRequest request) {
+        String path = request.getServletPath();
+        String method = request.getMethod();
+
+        for (PublicRoute publicRoute : PUBLIC_ROUTES) {
+            if (publicRoute.matches(path, method)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private void sendError(HttpServletResponse response, String message) throws IOException {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType("application/json");
         response.getWriter().write("{\"error\": \"" + message + "\"}");
     }
+
+    // Classe interna para representar rotas públicas
+    private static class PublicRoute {
+        private final String path;
+        private final String method;
+
+        public PublicRoute(String path, String method) {
+            this.path = path;
+            this.method = method;
+        }
+
+        public boolean matches(String requestPath, String requestMethod) {
+            if ("ALL".equals(method)) {
+                // Verifica se o caminho começa com o path definido
+                return requestPath.startsWith(path);
+            } else {
+                // Verifica caminho exato e método específico
+                return requestPath.equals(path) && requestMethod.equals(method);
+            }
+        }
+    }
 }
-
-

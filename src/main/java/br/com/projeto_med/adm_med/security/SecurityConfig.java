@@ -29,7 +29,8 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable()) // CSRF desabilitado
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("/usuarios").permitAll() // POST já está incluído
+                        .requestMatchers("/usuarios").permitAll()
+                        .requestMatchers("/").permitAll()// POST já está incluído
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
