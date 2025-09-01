@@ -31,33 +31,24 @@ public class AuthController {
             String email = payload.get("email");
             String senha = payload.get("senha");
 
-            System.out.println("Tentativa de login: email=" + email + ", senha=" + senha);
-
             Usuario usuario = usuarioService.buscarPorEmail(email)
-                    .orElseThrow(() -> {
-                        System.out.println("Usuário não encontrado: " + email);
-                        return new RuntimeException("Usuário não encontrado");
-                    });
+                    .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
-            System.out.println("Senha fornecida: " + senha);
-            System.out.println("Senha armazenada: " + usuario.getSenha());
-
-            boolean senhaCorreta = passwordEncoder.matches(senha, usuario.getSenha());
-            System.out.println("Senha coincide: " + senhaCorreta);
-
-            if (!senhaCorreta) {
-                System.out.println("Senha inválida para usuário: " + email);
+            if (!passwordEncoder.matches(senha, usuario.getSenha())) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                         .body(Map.of("error", "Credenciais inválidas"));
             }
 
-            String token = jwtUtil.gerarToken(email);
-            System.out.println("Login bem-sucedido para: " + email);
-            return ResponseEntity.ok(Map.of("token", token, "email", email));
+            // ✅ Gera o token usando o UserDetails
+            String token = jwtUtil.generateToken(usuario);
+
+            return ResponseEntity.ok(Map.of(
+                    "token", token,
+                    "email", email,
+                    "role", usuario.getTipo().name() // opcional: retorna o tipo de usuário
+            ));
 
         } catch (Exception e) {
-            System.out.println("Erro no login: " + e.getMessage());
-            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("error", "Falha na autenticação"));
         }

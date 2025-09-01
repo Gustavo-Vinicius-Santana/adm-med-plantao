@@ -2,13 +2,16 @@ package br.com.projeto_med.adm_med.service;
 
 import br.com.projeto_med.adm_med.model.Usuario;
 import br.com.projeto_med.adm_med.repository.UsuarioRepository;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
-public class UsuarioService {
+public class UsuarioService implements UserDetailsService {
 
     private final UsuarioRepository repository;
 
@@ -39,5 +42,12 @@ public class UsuarioService {
     // Buscar por email
     public Optional<Usuario> buscarPorEmail(String email) {
         return Optional.ofNullable(repository.findByEmail(email));
+    }
+
+    // Implementação exigida pelo Spring Security
+    @Override
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        return buscarPorEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado: " + email));
     }
 }
