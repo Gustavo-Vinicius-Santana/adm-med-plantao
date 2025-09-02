@@ -29,10 +29,13 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // Rotas públicas
                         .requestMatchers("/auth/**", "/").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/usuarios").permitAll()
                         // Rotas do coordenador
+                        .requestMatchers(HttpMethod.POST, "/usuarios").hasRole("COORDENADOR")
                         .requestMatchers(HttpMethod.POST,  "/locais").hasRole("COORDENADOR")
                         .requestMatchers(HttpMethod.POST, "/plantoes").hasRole("COORDENADOR")
+                        
+                        .requestMatchers(HttpMethod.DELETE,  "/locais").hasRole("COORDENADOR")
+                        .requestMatchers(HttpMethod.DELETE, "/plantoes").hasRole("COORDENADOR")
                         // Qualquer outra rota exige autenticação
                         .anyRequest().authenticated()
                 )
