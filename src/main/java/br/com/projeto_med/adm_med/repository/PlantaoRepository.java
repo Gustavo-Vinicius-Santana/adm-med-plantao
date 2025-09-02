@@ -10,4 +10,13 @@ import java.util.List;
 public interface PlantaoRepository extends JpaRepository<Plantao, Long> {
 
     List<Plantao> findByAlunoId(Long alunoId);
+
+    // Adicione outras consultas se necessário
+    List<Plantao> findByLocalId(Long localId);
+
+    boolean existsByAlunoId(Long alunoId);
+
+    // Verificar conflitos de horário (exemplo)
+    // @Query("SELECT p FROM Plantao p WHERE p.aluno.id = :alunoId AND p.turno = :turno")
+    // List<Plantao> findByAlunoAndTurno(Long alunoId, String turno);
 }
