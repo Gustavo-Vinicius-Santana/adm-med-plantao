@@ -47,41 +47,48 @@ public class UsuarioController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Usuario> atualizar(@PathVariable Long id, @RequestBody Usuario usuario) {
+    public ResponseEntity<?> atualizar(@PathVariable Long id, @RequestBody Usuario usuario) {
+        Optional<Usuario> usuarioLogadoOpt = service.getUsuarioLogado();
+        if (usuarioLogadoOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Usuário não autenticado");
+        }
+        Usuario usuarioLogado = usuarioLogadoOpt.get();
+
+        // Só coordenador pode editar outros. Usuário comum só edita a si mesmo
+        if (!usuarioLogado.getTipo().equals(Usuario.TipoUsuario.COORDENADOR) &&
+                !usuarioLogado.getId().equals(id)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Você não tem permissão para editar este usuário");
+        }
+
+        try {
+            Usuario atualizado = service.editarUsuario(id, usuario);
+            return ResponseEntity.ok(atualizado);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletar(@PathVariable Long id) {
         Optional<Usuario> usuarioLogadoOpt = service.getUsuarioLogado();
         Usuario usuarioAlvo = service.buscarPorId(id)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
-        // Verifica permissões
         if (usuarioLogadoOpt.isEmpty()) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
+
         Usuario usuarioLogado = usuarioLogadoOpt.get();
 
+        // Se não for admin e não for o próprio usuário, não permite
         if (!usuarioLogado.getTipo().equals(Usuario.TipoUsuario.COORDENADOR) &&
                 !usuarioLogado.getId().equals(id)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        // Mantém o ID
-        usuario.setId(id);
-
-        // Mantém sempre a senha atual
-        usuario.setSenha(usuarioAlvo.getSenha());
-
-        Usuario atualizado = service.salvar(usuario);
-        return ResponseEntity.ok(atualizado);
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletar(@PathVariable Long id) {
-        Optional<Usuario> usuarioLogado = service.getUsuarioLogado();
-        Usuario usuarioAlvo = service.buscarPorId(id)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
-
-        // Se não for admin e não for o próprio usuário, não permite
-        if (!usuarioLogado.get().getTipo().equals(Usuario.TipoUsuario.COORDENADOR) &&
-                !usuarioLogado.get().getId().equals(id)) {
+        // Se for admin tentando deletar a si mesmo, bloqueia
+        if (usuarioLogado.getTipo().equals(Usuario.TipoUsuario.COORDENADOR) &&
+                usuarioLogado.getId().equals(id)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 

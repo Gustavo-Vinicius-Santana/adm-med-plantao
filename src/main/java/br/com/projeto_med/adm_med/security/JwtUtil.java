@@ -19,7 +19,7 @@ public class JwtUtil {
     private final SecretKey SECRET_KEY = Keys.hmacShaKeyFor(
             "minha_chave_super_secreta_deve_ter_no_minimo_32_chars".getBytes()
     );
-    
+
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }

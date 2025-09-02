@@ -13,19 +13,19 @@ public class DataLoader {
     @Bean
     public CommandLineRunner loadAdmin(UsuarioService usuarioService, PasswordEncoder passwordEncoder) {
         return args -> {
-            String adminEmail = "admin@meuapp.com";
+            // verifica se já existe algum coordenador
+            boolean existeAdmin = usuarioService.existePorTipo(Usuario.TipoUsuario.COORDENADOR);
 
-            // verifica se já existe
-            if (usuarioService.buscarPorEmail(adminEmail).isEmpty()) {
+            if (!existeAdmin) {
                 Usuario admin = new Usuario();
                 admin.setNome("Administrador");
-                admin.setEmail(adminEmail);
-                admin.setSenha(passwordEncoder.encode("admin123")); // senha criptografada
-                admin.setTipo(Usuario.TipoUsuario.COORDENADOR); // ou outro tipo que seja admin
+                admin.setEmail("admin@meuapp.com"); // pode ser alterado depois
+                admin.setSenha(passwordEncoder.encode("admin123"));
+                admin.setTipo(Usuario.TipoUsuario.COORDENADOR);
                 usuarioService.salvar(admin);
-                System.out.println("Usuário admin criado: " + adminEmail);
+                System.out.println("Usuário admin criado com sucesso!");
             } else {
-                System.out.println("Usuário admin já existe: " + adminEmail);
+                System.out.println("Já existe um usuário coordenador (admin). Nenhum novo foi criado.");
             }
         };
     }

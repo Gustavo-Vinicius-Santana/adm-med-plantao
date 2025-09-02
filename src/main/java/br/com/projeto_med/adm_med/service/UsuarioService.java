@@ -63,4 +63,46 @@ public class UsuarioService implements UserDetailsService {
 
         return Optional.empty();
     }
+
+    public Usuario editarUsuario(Long id, Usuario novosDados) {
+        Usuario usuarioExistente = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
+        // Quem está logado
+        Usuario usuarioLogado = getUsuarioLogado()
+                .orElseThrow(() -> new RuntimeException("Usuário não autenticado"));
+
+        // ----- Regra para alterar a role -----
+        if (novosDados.getTipo() != null && !novosDados.getTipo().equals(usuarioExistente.getTipo())) {
+            if (usuarioLogado.getTipo() != Usuario.TipoUsuario.COORDENADOR) {
+                // ❌ Apenas coordenador pode alterar roles
+                throw new RuntimeException("Você não tem permissão para alterar a role");
+            }
+
+            // Coordenador só pode mudar para ALUNO ou PROFESSOR
+            if (novosDados.getTipo() == Usuario.TipoUsuario.COORDENADOR) {
+                throw new RuntimeException("Não é permitido conceder role de COORDENADOR");
+            }
+
+            usuarioExistente.setTipo(novosDados.getTipo());
+        }
+
+        // Atualizar outros campos (nome, email, etc.)
+        if (novosDados.getNome() != null) {
+            usuarioExistente.setNome(novosDados.getNome());
+        }
+        if (novosDados.getEmail() != null) {
+            usuarioExistente.setEmail(novosDados.getEmail());
+        }
+        // Se quiser permitir atualizar senha
+        if (novosDados.getSenha() != null && !novosDados.getSenha().isBlank()) {
+            usuarioExistente.setSenha(novosDados.getSenha()); // lembre de encodar!
+        }
+
+        return repository.save(usuarioExistente);
+    }
+
+    public boolean existePorTipo(Usuario.TipoUsuario tipo) {
+        return repository.existsByTipo(tipo);
+    }
 }
