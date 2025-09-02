@@ -2,11 +2,13 @@ package br.com.projeto_med.adm_med.controller;
 
 import br.com.projeto_med.adm_med.model.Usuario;
 import br.com.projeto_med.adm_med.service.UsuarioService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/usuarios")
@@ -44,26 +46,46 @@ public class UsuarioController {
         return ResponseEntity.ok(salvo);
     }
 
-    // Atualizar um usuário existente
     @PutMapping("/{id}")
     public ResponseEntity<Usuario> atualizar(@PathVariable Long id, @RequestBody Usuario usuario) {
-        return service.buscarPorId(id)
-                .map(usuarioExistente -> {
-                    usuario.setId(id);
-                    Usuario atualizado = service.salvar(usuario);
-                    return ResponseEntity.ok(atualizado);
-                })
-                .orElse(ResponseEntity.notFound().build());
+        Optional<Usuario> usuarioLogadoOpt = service.getUsuarioLogado();
+        Usuario usuarioAlvo = service.buscarPorId(id)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
+        // Verifica permissões
+        if (usuarioLogadoOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        Usuario usuarioLogado = usuarioLogadoOpt.get();
+
+        if (!usuarioLogado.getTipo().equals(Usuario.TipoUsuario.COORDENADOR) &&
+                !usuarioLogado.getId().equals(id)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        // Mantém o ID
+        usuario.setId(id);
+
+        // Mantém sempre a senha atual
+        usuario.setSenha(usuarioAlvo.getSenha());
+
+        Usuario atualizado = service.salvar(usuario);
+        return ResponseEntity.ok(atualizado);
     }
 
-    // Deletar um usuário
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
-        return service.buscarPorId(id)
-                .map(usuarioExistente -> {
-                    service.deletar(id);
-                    return ResponseEntity.noContent().<Void>build();
-                })
-                .orElse(ResponseEntity.notFound().build());
+        Optional<Usuario> usuarioLogado = service.getUsuarioLogado();
+        Usuario usuarioAlvo = service.buscarPorId(id)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
+        // Se não for admin e não for o próprio usuário, não permite
+        if (!usuarioLogado.get().getTipo().equals(Usuario.TipoUsuario.COORDENADOR) &&
+                !usuarioLogado.get().getId().equals(id)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        service.deletar(id);
+        return ResponseEntity.noContent().build();
     }
 }

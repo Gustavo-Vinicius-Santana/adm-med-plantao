@@ -33,7 +33,10 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/usuarios").hasRole("COORDENADOR")
                         .requestMatchers(HttpMethod.POST,  "/locais").hasRole("COORDENADOR")
                         .requestMatchers(HttpMethod.POST, "/plantoes").hasRole("COORDENADOR")
-                        
+
+                        .requestMatchers(HttpMethod.PUT,  "/locais").hasRole("COORDENADOR")
+                        .requestMatchers(HttpMethod.PUT, "/plantoes").hasRole("COORDENADOR")
+
                         .requestMatchers(HttpMethod.DELETE,  "/locais").hasRole("COORDENADOR")
                         .requestMatchers(HttpMethod.DELETE, "/plantoes").hasRole("COORDENADOR")
                         // Qualquer outra rota exige autenticação
