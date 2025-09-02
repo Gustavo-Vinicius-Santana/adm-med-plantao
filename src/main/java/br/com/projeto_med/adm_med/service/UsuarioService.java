@@ -2,6 +2,8 @@ package br.com.projeto_med.adm_med.service;
 
 import br.com.projeto_med.adm_med.model.Usuario;
 import br.com.projeto_med.adm_med.repository.UsuarioRepository;
+import br.com.projeto_med.adm_med.exception.ResourceNotFoundException;
+import br.com.projeto_med.adm_med.exception.BusinessException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -30,6 +32,12 @@ public class UsuarioService implements UserDetailsService {
         return repository.findById(id);
     }
 
+    // Buscar por ID ou lançar exceção
+    public Usuario buscarPorIdOuFalhar(Long id) {
+        return repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuário", "id", id));
+    }
+
     // Criar ou atualizar
     public Usuario salvar(Usuario usuario) {
         return repository.save(usuario);
@@ -37,12 +45,26 @@ public class UsuarioService implements UserDetailsService {
 
     // Deletar por ID
     public void deletar(Long id) {
+        if (!repository.existsById(id)) {
+            throw new ResourceNotFoundException("Usuário", "id", id);
+        }
         repository.deleteById(id);
     }
 
     // Buscar por email
     public Optional<Usuario> buscarPorEmail(String email) {
-        return Optional.ofNullable(repository.findByEmail(email));
+        return repository.findByEmail(email); // Se usar Optional no repository
+    }
+
+    // Buscar por email ou lançar exceção
+    public Usuario buscarPorEmailOuFalhar(String email) {
+        return buscarPorEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuário", "email", email));
+    }
+
+    // Verificar se email existe
+    public boolean existsByEmail(String email) {
+        return repository.existsByEmail(email);
     }
 
     // Implementação exigida pelo Spring Security
@@ -56,7 +78,6 @@ public class UsuarioService implements UserDetailsService {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         if (principal instanceof Usuario) {
-            // Agora pegamos diretamente o usuário do contexto de segurança
             Usuario usuario = (Usuario) principal;
             return repository.findById(usuario.getId());
         }
@@ -64,24 +85,28 @@ public class UsuarioService implements UserDetailsService {
         return Optional.empty();
     }
 
+    public Usuario getUsuarioLogadoOuFalhar() {
+        return getUsuarioLogado()
+                .orElseThrow(() -> new BusinessException("Usuário não autenticado"));
+    }
+
     public Usuario editarUsuario(Long id, Usuario novosDados) {
         Usuario usuarioExistente = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Usuário", "id", id));
 
         // Quem está logado
-        Usuario usuarioLogado = getUsuarioLogado()
-                .orElseThrow(() -> new RuntimeException("Usuário não autenticado"));
+        Usuario usuarioLogado = getUsuarioLogadoOuFalhar();
 
-        // ----- Regra para alterar a role -----
+        // Regra para alterar role
         if (novosDados.getTipo() != null && !novosDados.getTipo().equals(usuarioExistente.getTipo())) {
-            if (usuarioLogado.getTipo() != Usuario.TipoUsuario.COORDENADOR) {
-                // ❌ Apenas coordenador pode alterar roles
-                throw new RuntimeException("Você não tem permissão para alterar a role");
+            if (!usuarioLogado.getTipo().equals(Usuario.TipoUsuario.COORDENADOR)) {
+                // coordenador pode alterar roles
+                throw new BusinessException("Você não tem permissão para alterar a role");
             }
 
             // Coordenador só pode mudar para ALUNO ou PROFESSOR
-            if (novosDados.getTipo() == Usuario.TipoUsuario.COORDENADOR) {
-                throw new RuntimeException("Não é permitido conceder role de COORDENADOR");
+            if (novosDados.getTipo().equals(Usuario.TipoUsuario.COORDENADOR)) {
+                throw new BusinessException("Não é permitido conceder role de COORDENADOR");
             }
 
             usuarioExistente.setTipo(novosDados.getTipo());
@@ -91,9 +116,18 @@ public class UsuarioService implements UserDetailsService {
         if (novosDados.getNome() != null) {
             usuarioExistente.setNome(novosDados.getNome());
         }
+
         if (novosDados.getEmail() != null) {
+            // Verificar se o novo email já existe em outro usuário
+            if (!novosDados.getEmail().equals(usuarioExistente.getEmail())) {
+                // Use existsByEmailAndIdNot se estiver disponível
+                if (repository.existsByEmailAndIdNot(novosDados.getEmail(), id)) {
+                    throw new BusinessException("Email já está em uso: " + novosDados.getEmail());
+                }
+            }
             usuarioExistente.setEmail(novosDados.getEmail());
         }
+
         // Se quiser permitir atualizar senha
         if (novosDados.getSenha() != null && !novosDados.getSenha().isBlank()) {
             usuarioExistente.setSenha(novosDados.getSenha()); // lembre de encodar!
@@ -104,5 +138,25 @@ public class UsuarioService implements UserDetailsService {
 
     public boolean existePorTipo(Usuario.TipoUsuario tipo) {
         return repository.existsByTipo(tipo);
+    }
+
+    // Método para verificar permissões
+    public boolean usuarioPodeEditar(Long targetUserId) {
+        Usuario usuarioLogado = getUsuarioLogadoOuFalhar();
+
+        return usuarioLogado.getTipo().equals(Usuario.TipoUsuario.COORDENADOR) ||
+                usuarioLogado.getId().equals(targetUserId);
+    }
+
+    public boolean usuarioPodeDeletar(Long targetUserId) {
+        Usuario usuarioLogado = getUsuarioLogadoOuFalhar();
+
+        // Coordenador pode deletar qualquer um, exceto a si mesmo
+        if (usuarioLogado.getTipo().equals(Usuario.TipoUsuario.COORDENADOR)) {
+            return !usuarioLogado.getId().equals(targetUserId);
+        }
+
+        // Usuário comum só pode deletar a si mesmo
+        return usuarioLogado.getId().equals(targetUserId);
     }
 }
