@@ -55,13 +55,12 @@ public class UsuarioService implements UserDetailsService {
     public Optional<Usuario> getUsuarioLogado() {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        String email;
-        if (principal instanceof UserDetails) {
-            email = ((UserDetails) principal).getUsername();
-        } else {
-            email = principal.toString();
+        if (principal instanceof Usuario) {
+            // Agora pegamos diretamente o usuário do contexto de segurança
+            Usuario usuario = (Usuario) principal;
+            return repository.findById(usuario.getId());
         }
 
-        return Optional.ofNullable(repository.findByEmail(email));
+        return Optional.empty();
     }
 }

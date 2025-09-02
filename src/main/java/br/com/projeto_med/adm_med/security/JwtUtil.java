@@ -1,5 +1,6 @@
 package br.com.projeto_med.adm_med.security;
 
+import br.com.projeto_med.adm_med.model.Usuario;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -18,7 +19,7 @@ public class JwtUtil {
     private final SecretKey SECRET_KEY = Keys.hmacShaKeyFor(
             "minha_chave_super_secreta_deve_ter_no_minimo_32_chars".getBytes()
     );
-
+    
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
@@ -44,9 +45,16 @@ public class JwtUtil {
         return extractExpiration(token).before(new Date());
     }
 
-    public String generateToken(UserDetails userDetails) {
+    // Extrai o ID do usuário do token
+    public Long extractUserId(String token) {
+        return extractClaim(token, claims -> Long.parseLong(claims.get("userId").toString()));
+    }
+
+    // Gera token incluindo o ID do usuário
+    public String generateToken(UserDetails userDetails, Long userId) {
         Map<String, Object> claims = new HashMap<>();
-        claims.put("role", userDetails.getAuthorities()); // opcional: incluir papel
+        claims.put("role", userDetails.getAuthorities()); // opcional: roles
+        claims.put("userId", userId); // inclui ID do usuário
         return createToken(claims, userDetails.getUsername());
     }
 
@@ -54,15 +62,15 @@ public class JwtUtil {
         long expirationTime = 1000 * 60 * 60; // 1h
         return Jwts.builder()
                 .setClaims(claims)
-                .setSubject(subject) // aqui vai o email
+                .setSubject(subject) // e-mail
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + expirationTime))
                 .signWith(SignatureAlgorithm.HS256, SECRET_KEY)
                 .compact();
     }
 
-    public Boolean validateToken(String token, UserDetails userDetails) {
-        final String username = extractUsername(token);
-        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+    public Boolean validateToken(String token, Usuario userDetails) {
+        Long tokenUserId = extractUserId(token);
+        return tokenUserId.equals(userDetails.getId()) && !isTokenExpired(token);
     }
 }

@@ -8,7 +8,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -39,8 +38,8 @@ public class AuthController {
                         .body(Map.of("error", "Credenciais inválidas"));
             }
 
-            // ✅ Gera o token usando o UserDetails
-            String token = jwtUtil.generateToken(usuario);
+            // ✅ Gera o token usando o ID do usuário
+            String token = jwtUtil.generateToken(usuario, usuario.getId());
 
             return ResponseEntity.ok(Map.of(
                     "token", token,
