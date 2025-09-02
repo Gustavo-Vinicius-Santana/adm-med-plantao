@@ -1,5 +1,6 @@
 package br.com.projeto_med.adm_med.exception;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -74,5 +75,36 @@ public class CustomExceptionHandler {
         );
 
         return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    // Handler para erro de integridade
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ErrorResponse> handleDataIntegrityViolation(
+            DataIntegrityViolationException ex, WebRequest request) {
+
+        String mensagem = "Violação de integridade de dados";
+        String causaRaiz = ex.getMostSpecificCause().getMessage();
+
+        // Analisar a causa raiz para mensagens específicas
+        if (causaRaiz.contains("not-null") || causaRaiz.contains("NOT NULL")) {
+            mensagem = "Campos obrigatórios não foram preenchidos";
+        }
+        else if (causaRaiz.contains("foreign key") || causaRaiz.contains("constraint")) {
+            mensagem = "Não é possível excluir o recurso pois está em uso por outros registros";
+        }
+        else if (causaRaiz.contains("unique") || causaRaiz.contains("duplicate key")) {
+            mensagem = "Já existe um registro com esses dados";
+        }
+        else if (causaRaiz.contains("value too long")) {
+            mensagem = "Valor muito longo para algum campo";
+        }
+
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.CONFLICT.value(),
+                "Conflito de dados",
+                mensagem
+        );
+
+        return new ResponseEntity<>(error, HttpStatus.CONFLICT);
     }
 }
