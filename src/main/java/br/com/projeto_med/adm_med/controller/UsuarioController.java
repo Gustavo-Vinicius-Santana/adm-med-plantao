@@ -1,5 +1,6 @@
 package br.com.projeto_med.adm_med.controller;
 
+import br.com.projeto_med.adm_med.dto.UsuarioResponseDTO;
 import br.com.projeto_med.adm_med.model.Usuario;
 import br.com.projeto_med.adm_med.service.UsuarioService;
 import br.com.projeto_med.adm_med.exception.ResourceNotFoundException;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/usuarios")
@@ -26,17 +28,23 @@ public class UsuarioController {
 
     // Listar todos os usuários
     @GetMapping
-    public ResponseEntity<List<Usuario>> listarTodos() {
+    public ResponseEntity<List<UsuarioResponseDTO>> listarTodos() {
         List<Usuario> usuarios = service.listarTodos();
-        return ResponseEntity.ok(usuarios);
+
+        // Converter lista de Usuario para lista de UsuarioResponseDTO
+        List<UsuarioResponseDTO> usuariosDTO = usuarios.stream()
+                .map(UsuarioResponseDTO::new)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(usuariosDTO);
     }
 
     // Buscar usuário por ID
     @GetMapping("/{id}")
-    public ResponseEntity<Usuario> buscarPorId(@PathVariable Long id) {
+    public ResponseEntity<UsuarioResponseDTO> buscarPorId(@PathVariable Long id) {
         Usuario usuario = service.buscarPorId(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuário", "id", id));
-        return ResponseEntity.ok(usuario);
+        return ResponseEntity.ok(new UsuarioResponseDTO(usuario));
     }
 
     // Criar um novo usuário
@@ -55,7 +63,7 @@ public class UsuarioController {
 
     // atualizar
     @PutMapping("/{id}")
-    public ResponseEntity<Usuario> atualizar(@PathVariable Long id, @RequestBody Usuario usuario) {
+    public ResponseEntity<UsuarioResponseDTO> atualizar(@PathVariable Long id, @RequestBody Usuario usuario) {
         Usuario usuarioLogado = service.getUsuarioLogadoOuFalhar(); // ✅ Mudar aqui
 
         // Só coordenador pode editar outros. Usuário comum só edita a si mesmo
@@ -65,7 +73,7 @@ public class UsuarioController {
         }
 
         Usuario atualizado = service.editarUsuario(id, usuario);
-        return ResponseEntity.ok(atualizado);
+        return ResponseEntity.ok(new UsuarioResponseDTO(usuario));
     }
 
     // Deletar usuário
