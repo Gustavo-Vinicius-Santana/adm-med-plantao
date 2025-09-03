@@ -4,6 +4,6 @@ public class PlantaoDTO {
     public String nome;
     public Long aluno; // ID do aluno
     public Long local; // ID do local
-    public String horas;
+    public Double horas;
     public String turno;
 }
