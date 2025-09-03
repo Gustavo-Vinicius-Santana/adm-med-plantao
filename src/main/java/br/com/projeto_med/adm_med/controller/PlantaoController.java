@@ -56,9 +56,9 @@ public class PlantaoController {
             throw new BusinessException("O nome do plantão é obrigatório");
         }
 
-        // if (dto.horas <= 0) {
-        //    throw new BusinessException("As horas do plantão devem ser maiores que zero");
-        // }
+        if (dto.horas <= 0) {
+            throw new BusinessException("As horas do plantão devem ser maiores que zero");
+        }
 
         Usuario aluno = usuarioService.buscarPorId(dto.aluno)
                 .orElseThrow(() -> new ResourceNotFoundException("Aluno", "id", dto.aluno));

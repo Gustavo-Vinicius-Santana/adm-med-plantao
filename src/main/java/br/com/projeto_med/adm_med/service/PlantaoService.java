@@ -36,11 +36,6 @@ public class PlantaoService {
 
     // Salvar ou atualizar um plantão
     public Plantao salvar(Plantao plantao) {
-        // Validações de negócio podem ser adicionadas aqui
-        //if (plantao.getHoras() <= 0) {
-        //    throw new BusinessException("As horas do plantão devem ser maiores que zero");
-        //}
-
         if (plantao.getNome() == null || plantao.getNome().trim().isEmpty()) {
             throw new BusinessException("O nome do plantão é obrigatório");
         }

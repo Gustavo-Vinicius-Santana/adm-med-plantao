@@ -40,6 +40,22 @@ public class UsuarioService implements UserDetailsService {
 
     // Criar ou atualizar
     public Usuario salvar(Usuario usuario) {
+        // Validações de negócio
+        if (usuario.getHorasAFazer() != null && usuario.getHorasAFazer() < 0) {
+            throw new BusinessException("Horas a fazer não pode ser negativo");
+        }
+
+        if (usuario.getHorasFeitas() != null && usuario.getHorasFeitas() < 0) {
+            throw new BusinessException("Horas feitas não pode ser negativo");
+        }
+
+        // Verificar se horas feitas não excedem horas a fazer
+        if (usuario.getHorasAFazer() != null && usuario.getHorasFeitas() != null) {
+            if (usuario.getHorasFeitas() > usuario.getHorasAFazer()) {
+                throw new BusinessException("Horas feitas não podem exceder horas a fazer");
+            }
+        }
+
         return repository.save(usuario);
     }
 
@@ -140,7 +156,7 @@ public class UsuarioService implements UserDetailsService {
         return repository.existsByTipo(tipo);
     }
 
-    // Método para verificar permissões
+    // verificar permissões
     public boolean usuarioPodeEditar(Long targetUserId) {
         Usuario usuarioLogado = getUsuarioLogadoOuFalhar();
 

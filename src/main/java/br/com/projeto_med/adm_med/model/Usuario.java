@@ -1,6 +1,7 @@
 package br.com.projeto_med.adm_med.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -22,27 +23,36 @@ public class Usuario implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "O nome é obrigatório")
     @Column(nullable = false, length = 100)
     private String nome;
 
+    @NotBlank(message = "O email é obrigatório")
+    @Email(message = "Email deve ser válido")
     @Column(nullable = false, unique = true, length = 120)
     private String email;
 
+    @NotBlank(message = "A senha é obrigatória")
     @Column(nullable = false)
     private String senha;
 
+    @Pattern(regexp = "\\d{10,11}", message = "Telefone deve ter 10 ou 11 dígitos")
     @Column(length = 20)
     private String telefone;
 
+    @Size(max = 100, message = "Especialização deve ter no máximo 100 caracteres")
     @Column(length = 100)
     private String especializacao;
 
-    @Column(nullable = true)
-    private String horas_a_fazer;
+    @Min(value = 0, message = "Horas a fazer não pode ser negativo")
+    @Column(name = "horas_a_fazer")
+    private Integer horasAFazer; // Alterado para Integer
 
-    @Column(nullable = true)
-    private String horas_feitas;
+    @Min(value = 0, message = "Horas feitas não pode ser negativo")
+    @Column(name = "horas_feitas")
+    private Integer horasFeitas; // Alterado para Integer
 
+    @NotNull(message = "O tipo de usuário é obrigatório")
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private TipoUsuario tipo;
@@ -50,24 +60,22 @@ public class Usuario implements UserDetails {
     // Construtor vazio (necessário para JPA)
     public Usuario() {}
 
-    // Construtor completo (opcional, pode facilitar em testes)
+    // Construtor completo
     public Usuario(String nome, String email, String telefone,
-                   String especializacao, String horas_a_fazer,
-                   String horas_feitas, TipoUsuario tipo) {
+                   String especializacao, Integer horasAFazer,
+                   Integer horasFeitas, TipoUsuario tipo) {
         this.nome = nome;
         this.email = email;
         this.telefone = telefone;
         this.especializacao = especializacao;
-        this.horas_a_fazer = horas_a_fazer;
-        this.horas_feitas = horas_feitas;
+        this.horasAFazer = horasAFazer;
+        this.horasFeitas = horasFeitas;
         this.tipo = tipo;
     }
 
     // Métodos da interface UserDetails
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        // Converte o TipoUsuario para uma autoridade Spring Security
-        // Ex: "COORDENADOR" -> "ROLE_COORDENADOR"
         String role = "ROLE_" + this.tipo.name();
         return Collections.singletonList(new SimpleGrantedAuthority(role));
     }
@@ -79,30 +87,30 @@ public class Usuario implements UserDetails {
 
     @Override
     public String getUsername() {
-        return this.email; // Usamos o email como username
+        return this.email;
     }
 
     @Override
     public boolean isAccountNonExpired() {
-        return true; // Conta nunca expira
+        return true;
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return true; // Conta nunca é bloqueada
+        return true;
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return true; // Credenciais nunca expiram
+        return true;
     }
 
     @Override
     public boolean isEnabled() {
-        return true; // Usuário sempre está habilitado
+        return true;
     }
 
-    // Getters e Setters (mantidos da versão original)
+    // Getters e Setters
     public Long getId() {
         return id;
     }
@@ -145,18 +153,18 @@ public class Usuario implements UserDetails {
         this.especializacao = especializacao;
     }
 
-    public String getHoras_a_fazer() {
-        return horas_a_fazer;
+    public Integer getHorasAFazer() {
+        return horasAFazer;
     }
-    public void setHoras_a_fazer(String horas_a_fazer) {
-        this.horas_a_fazer = horas_a_fazer;
+    public void setHorasAFazer(Integer horasAFazer) {
+        this.horasAFazer = horasAFazer;
     }
 
-    public String getHoras_feitas() {
-        return horas_feitas;
+    public Integer getHorasFeitas() {
+        return horasFeitas;
     }
-    public void setHoras_feitas(String horas_feitas) {
-        this.horas_feitas = horas_feitas;
+    public void setHorasFeitas(Integer horasFeitas) {
+        this.horasFeitas = horasFeitas;
     }
 
     public TipoUsuario getTipo() {
@@ -164,5 +172,23 @@ public class Usuario implements UserDetails {
     }
     public void setTipo(TipoUsuario tipo) {
         this.tipo = tipo;
+    }
+
+    // Método utilitário para calcular horas restantes
+    public Integer getHorasRestantes() {
+        if (horasAFazer == null || horasFeitas == null) {
+            return null;
+        }
+        return Math.max(0, horasAFazer - horasFeitas);
+    }
+
+    // Método para adicionar horas feitas
+    public void adicionarHorasFeitas(Integer horas) {
+        if (horas != null && horas > 0) {
+            if (this.horasFeitas == null) {
+                this.horasFeitas = 0;
+            }
+            this.horasFeitas += horas;
+        }
     }
 }
