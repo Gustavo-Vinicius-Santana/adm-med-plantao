@@ -16,6 +16,7 @@ public class UsuarioResponseDTO {
     private Usuario.TipoUsuario tipo;
     private Integer horasRestantes;
     private Collection<? extends GrantedAuthority> authorities;
+    private String semestre; // NOVO CAMPO
 
     // Construtor a partir da entidade Usuario
     public UsuarioResponseDTO(Usuario usuario) {
@@ -29,6 +30,7 @@ public class UsuarioResponseDTO {
         this.tipo = usuario.getTipo();
         this.horasRestantes = usuario.getHorasRestantes();
         this.authorities = usuario.getAuthorities();
+        this.semestre = usuario.getSemestre();
     }
 
     // Getters
@@ -42,4 +44,5 @@ public class UsuarioResponseDTO {
     public Usuario.TipoUsuario getTipo() { return tipo; }
     public Integer getHorasRestantes() { return horasRestantes; }
     public Collection<? extends GrantedAuthority> getAuthorities() { return authorities; }
+    public String getSemestre() { return semestre; } // NOVO GETTER
 }

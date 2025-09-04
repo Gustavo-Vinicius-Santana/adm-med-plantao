@@ -60,6 +60,11 @@ public class PlantaoController {
             throw new BusinessException("As horas do plantão devem ser maiores que zero");
         }
 
+        // Validação do novo campo dataPlantao
+        if (dto.dataPlantao == null) {
+            throw new BusinessException("A data do plantão é obrigatória");
+        }
+
         Usuario aluno = usuarioService.buscarPorId(dto.aluno)
                 .orElseThrow(() -> new ResourceNotFoundException("Aluno", "id", dto.aluno));
 
@@ -77,6 +82,8 @@ public class PlantaoController {
         plantao.setLocal(local);
         plantao.setHoras(dto.horas);
         plantao.setTurno(dto.turno);
+        plantao.setDataPlantao(dto.dataPlantao); // NOVO CAMPO
+        plantao.setSemestre(dto.semestre);       // NOVO CAMPO (opcional)
 
         Plantao salvo = plantaoService.salvar(plantao);
 
@@ -143,13 +150,15 @@ public class PlantaoController {
 
     // Converte Plantao para DTO de resposta
     private PlantaoResponseDTO toResponseDTO(Plantao plantao) {
-        PlantaoResponseDTO dto = new PlantaoResponseDTO();
-        dto.id = plantao.getId();
-        dto.nome = plantao.getNome();
-        dto.aluno = plantao.getAluno().getId();
-        dto.local = plantao.getLocal().getId();
-        dto.horas = plantao.getHoras();
-        dto.turno = plantao.getTurno();
-        return dto;
+        return new PlantaoResponseDTO(
+                plantao.getId(),
+                plantao.getNome(),
+                plantao.getAluno() != null ? plantao.getAluno().getId() : null,
+                plantao.getLocal() != null ? plantao.getLocal().getId() : null,
+                plantao.getHoras(),
+                plantao.getTurno(),
+                plantao.getDataPlantao(),  // NOVO CAMPO
+                plantao.getSemestre()      // NOVO CAMPO
+        );
     }
 }

@@ -46,16 +46,21 @@ public class Usuario implements UserDetails {
 
     @Min(value = 0, message = "Horas a fazer não pode ser negativo")
     @Column(name = "horas_a_fazer")
-    private Integer horasAFazer; // Alterado para Integer
+    private Integer horasAFazer;
 
     @Min(value = 0, message = "Horas feitas não pode ser negativo")
     @Column(name = "horas_feitas")
-    private Integer horasFeitas; // Alterado para Integer
+    private Integer horasFeitas;
 
     @NotNull(message = "O tipo de usuário é obrigatório")
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private TipoUsuario tipo;
+
+    // NOVO CAMPO: semestre como string opcional
+    @Size(max = 50, message = "O semestre deve ter no máximo 50 caracteres")
+    @Column(length = 50)
+    private String semestre;
 
     // Construtor vazio (necessário para JPA)
     public Usuario() {}
@@ -63,7 +68,7 @@ public class Usuario implements UserDetails {
     // Construtor completo
     public Usuario(String nome, String email, String telefone,
                    String especializacao, Integer horasAFazer,
-                   Integer horasFeitas, TipoUsuario tipo) {
+                   Integer horasFeitas, TipoUsuario tipo, String semestre) {
         this.nome = nome;
         this.email = email;
         this.telefone = telefone;
@@ -71,6 +76,7 @@ public class Usuario implements UserDetails {
         this.horasAFazer = horasAFazer;
         this.horasFeitas = horasFeitas;
         this.tipo = tipo;
+        this.semestre = semestre;
     }
 
     // Métodos da interface UserDetails
@@ -174,7 +180,15 @@ public class Usuario implements UserDetails {
         this.tipo = tipo;
     }
 
-    // Método utilitário para calcular horas restantes
+    // Getter e Setter para o novo campo semestre
+    public String getSemestre() {
+        return semestre;
+    }
+    public void setSemestre(String semestre) {
+        this.semestre = semestre;
+    }
+
+    // Metodo para calcular horas restantes
     public Integer getHorasRestantes() {
         if (horasAFazer == null || horasFeitas == null) {
             return null;
@@ -182,7 +196,7 @@ public class Usuario implements UserDetails {
         return Math.max(0, horasAFazer - horasFeitas);
     }
 
-    // Método para adicionar horas feitas
+    // Metodo para adicionar horas feitas
     public void adicionarHorasFeitas(Integer horas) {
         if (horas != null && horas > 0) {
             if (this.horasFeitas == null) {
