@@ -21,6 +21,7 @@ public class DataLoader {
                 admin.setNome("Administrador");
                 admin.setEmail("admin@meuapp.com"); // pode ser alterado depois
                 admin.setSenha(passwordEncoder.encode("admin123"));
+                admin.setSemestre(null);
                 admin.setTipo(Usuario.TipoUsuario.COORDENADOR);
                 usuarioService.salvar(admin);
                 System.out.println("Usuário admin criado com sucesso!");
