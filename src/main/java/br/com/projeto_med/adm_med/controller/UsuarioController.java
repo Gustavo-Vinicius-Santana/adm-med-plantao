@@ -1,64 +1,109 @@
 package br.com.projeto_med.adm_med.controller;
 
+import br.com.projeto_med.adm_med.dto.UsuarioResponseDTO;
 import br.com.projeto_med.adm_med.model.Usuario;
 import br.com.projeto_med.adm_med.service.UsuarioService;
+import br.com.projeto_med.adm_med.exception.ResourceNotFoundException;
+import br.com.projeto_med.adm_med.exception.BusinessException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/usuarios")
 public class UsuarioController {
 
     private final UsuarioService service;
+    private final PasswordEncoder passwordEncoder;
 
-    public UsuarioController(UsuarioService service) {
+    public UsuarioController(UsuarioService service, PasswordEncoder passwordEncoder) {
         this.service = service;
+        this.passwordEncoder = passwordEncoder;
     }
 
     // Listar todos os usuários
     @GetMapping
-    public ResponseEntity<List<Usuario>> listarTodos() {
+    public ResponseEntity<List<UsuarioResponseDTO>> listarTodos() {
         List<Usuario> usuarios = service.listarTodos();
-        return ResponseEntity.ok(usuarios);
+
+        // Converter lista de Usuario para lista de UsuarioResponseDTO
+        List<UsuarioResponseDTO> usuariosDTO = usuarios.stream()
+                .map(UsuarioResponseDTO::new)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(usuariosDTO);
     }
 
     // Buscar usuário por ID
     @GetMapping("/{id}")
-    public ResponseEntity<Usuario> buscarPorId(@PathVariable Long id) {
-        return service.buscarPorId(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<UsuarioResponseDTO> buscarPorId(@PathVariable Long id) {
+        Usuario usuario = service.buscarPorId(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuário", "id", id));
+        return ResponseEntity.ok(new UsuarioResponseDTO(usuario));
     }
 
     // Criar um novo usuário
     @PostMapping
     public ResponseEntity<Usuario> criar(@RequestBody Usuario usuario) {
+        // Verifica se email já existe
+        if (service.existsByEmail(usuario.getEmail())) {
+            throw new BusinessException("Email já cadastrado: " + usuario.getEmail());
+        }
+
+        // Criptografa a senha antes de salvar
+        usuario.setSenha(passwordEncoder.encode(usuario.getSenha()));
         Usuario salvo = service.salvar(usuario);
-        return ResponseEntity.ok(salvo);
+        return new ResponseEntity<>(salvo, HttpStatus.CREATED);
     }
 
-    // Atualizar um usuário existente
+    // atualizar
     @PutMapping("/{id}")
-    public ResponseEntity<Usuario> atualizar(@PathVariable Long id, @RequestBody Usuario usuario) {
-        return service.buscarPorId(id)
-                .map(usuarioExistente -> {
-                    usuario.setId(id);
-                    Usuario atualizado = service.salvar(usuario);
-                    return ResponseEntity.ok(atualizado);
-                })
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<UsuarioResponseDTO> atualizar(@PathVariable Long id, @RequestBody Usuario usuario) {
+        Usuario usuarioLogado = service.getUsuarioLogadoOuFalhar(); // ✅ Mudar aqui
+
+        // Só coordenador pode editar outros. Usuário comum só edita a si mesmo
+        if (!usuarioLogado.getTipo().equals(Usuario.TipoUsuario.COORDENADOR) &&
+                !usuarioLogado.getId().equals(id)) {
+            throw new BusinessException("Você não tem permissão para editar este usuário");
+        }
+
+        Usuario atualizado = service.editarUsuario(id, usuario);
+        return ResponseEntity.ok(new UsuarioResponseDTO(usuario));
     }
 
-    // Deletar um usuário
+    // Deletar usuário
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
-        return service.buscarPorId(id)
-                .map(usuarioExistente -> {
-                    service.deletar(id);
-                    return ResponseEntity.noContent().<Void>build();
-                })
-                .orElse(ResponseEntity.notFound().build());
+        Usuario usuarioLogado = service.getUsuarioLogadoOuFalhar(); // ✅ Mudar aqui
+
+        Usuario usuarioAlvo = service.buscarPorIdOuFalhar(id); // ✅ Usar método que lança exceção
+
+        // Se não for coordenador e não for o próprio usuário, não permite
+        if (!usuarioLogado.getTipo().equals(Usuario.TipoUsuario.COORDENADOR) &&
+                !usuarioLogado.getId().equals(id)) {
+            throw new BusinessException("Você não tem permissão para deletar este usuário");
+        }
+
+        // Se for coordenador tentando deletar a si mesmo, bloqueia
+        if (usuarioLogado.getTipo().equals(Usuario.TipoUsuario.COORDENADOR) &&
+                usuarioLogado.getId().equals(id)) {
+            throw new BusinessException("Coordenadores não podem deletar a própria conta");
+        }
+
+        service.deletar(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    // Endpoint adicional para buscar usuário por email
+    @GetMapping("/email/{email}")
+    public ResponseEntity<Usuario> buscarPorEmail(@PathVariable String email) {
+        Usuario usuario = service.buscarPorEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuário", "email", email));
+        return ResponseEntity.ok(usuario);
     }
 }
