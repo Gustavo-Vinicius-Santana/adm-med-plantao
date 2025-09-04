@@ -1,0 +1,784 @@
+type: collection.insomnia.rest/5.0
+name: adm-med-api
+meta:
+  id: wrk_b1f7246b6e2f4820b439adea0c3dedcc
+  created: 1756494197161
+  modified: 1756494197161
+  description: ""
+collection:
+  - name: usuario
+    meta:
+      id: fld_8dddd6eda3aa45d18a7a471db0b1b2a7
+      created: 1756520720824
+      modified: 1756520757815
+      sortKey: -1756520720824
+      description: ""
+    children:
+      - url: "{{ _.BASE_URL }}/usuarios"
+        name: listar usuario
+        meta:
+          id: req_591b2c8b06274649be453186de35c25e
+          created: 1756520807859
+          modified: 1756753288374
+          isPrivate: false
+          description: ""
+          sortKey: -1756520812670
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/11.5.0
+            id: pair_75e8372d18d343b2a26b8c71c3f23530
+          - id: pair_6aa15452a89e4023b09e79bea6ef05fb
+            name: Authorization
+            value: Bearer {{ _.TOKEN }}
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.BASE_URL }}/usuarios/2"
+        name: listar usuario por id
+        meta:
+          id: req_5eac93116dad40939e54cfeaadc518e1
+          created: 1756521552374
+          modified: 1756938487595
+          isPrivate: false
+          description: ""
+          sortKey: -1756520811774
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/11.5.0
+            id: pair_2f5662332dde4bd3ae0b0e7df2d17370
+          - id: pair_3264e4e1af3a4132a121693ba78e970b
+            name: Authorization
+            value: Bearer {{ _.TOKEN }}
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.BASE_URL }}/usuarios"
+        name: cadastrar usuario
+        meta:
+          id: req_0a6d8fc6e0c7440bbc82bf8583738726
+          created: 1756521581256
+          modified: 1756938980391
+          isPrivate: false
+          description: ""
+          sortKey: -1756520812770
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "nome": "João Silva",
+              "email": "teste@email.com",
+            	"senha": "teste2025",
+              "telefone": "11999999999",
+              "especializacao": "Matemática",
+            	"horasAFazer": null,
+            	"horasFeitas": null,
+              "tipo": "PROFESSOR"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+            id: pair_3f689688d6b9496ba44bf911a2fcfd68
+          - name: User-Agent
+            value: insomnia/11.5.0
+            id: pair_57463db514f043d39bda3395aa394207
+          - id: pair_8731bea6fe3b41d8b37a35ea527ac4b9
+            name: Authorization
+            value: Bearer {{ _.TOKEN }}
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.BASE_URL }}/usuarios/3"
+        name: editar usuario
+        meta:
+          id: req_5f2512106e8a4cd99e7ef0c97c8011af
+          created: 1756521627180
+          modified: 1756780208429
+          isPrivate: false
+          description: >-
+            # INSTRUÇÕES
+
+
+            - o usuario comum deve colocar o campo senha no objeto para que
+            possa editar.
+
+            - o admin não precisa colocar a senha para poder editar outro
+            usuario
+          sortKey: -1756520812720
+        method: PUT
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "nome": "João usuario editado",
+              "email": "teste2_editado@email.com",
+              "telefone": "11999999999",
+              "especializacao": "Matemática",
+              "horas_a_fazer": "39h",
+              "horas_feitas": "10h",
+              "tipo": "ALUNO"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+            id: pair_30372b4d215848a68e4a04c19cad4819
+          - name: User-Agent
+            value: insomnia/11.5.0
+            id: pair_88dd671f09704a52af060b672ad95861
+          - id: pair_3935364f13d64a4b9c6cd61a164c8e71
+            name: Authorization
+            value: Bearer {{ _.TOKEN }}
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.BASE_URL }}/usuarios/1"
+        name: deletar usuario por id
+        meta:
+          id: req_8e5a7ac35c5c4ad48a8c02961a86060d
+          created: 1756521778686
+          modified: 1756780788973
+          isPrivate: false
+          description: ""
+          sortKey: -1756520810990
+        method: DELETE
+        headers:
+          - name: User-Agent
+            value: insomnia/11.5.0
+            id: pair_213fd460ba814dafb7fa6b4db8e52c8e
+          - id: pair_d2fdde478aa54613bc92c62e7a0102ae
+            name: Authorization
+            value: Bearer {{ _.TOKEN }}
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+  - name: Documentação
+    meta:
+      id: fld_554ac08227e942b5a9501243dd4fdeb7
+      created: 1756520825936
+      modified: 1756777663949
+      sortKey: -1756569689464
+      description: ""
+    children:
+      - url: "{{ _.BASE_URL }}/"
+        name: sobre
+        meta:
+          id: req_2f4e2e3286b347f4b14ff191b012b67e
+          created: 1756494354923
+          modified: 1756756283783
+          isPrivate: false
+          description: ""
+          sortKey: -1756520834954
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/11.5.0
+            id: pair_e8f7d8952aff4f88b610595100d44869
+          - id: pair_9f267a7642144244a568ee0025d49073
+            name: Authorization
+            value: bearer {{ _.TOKEN }}
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+  - name: local
+    meta:
+      id: fld_4ff24b2d731848edb78b29525c06b2dd
+      created: 1756521857900
+      modified: 1756521857900
+      sortKey: -1756425426657.5
+      description: ""
+    children:
+      - url: "{{ _.BASE_URL }}/locais/1"
+        name: listar local por id
+        meta:
+          id: req_98b876061c1e4e798dedfae28ae7bf83
+          created: 1756521857902
+          modified: 1756763290585
+          isPrivate: false
+          description: ""
+          sortKey: -1756520811774
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/11.5.0
+            id: pair_9e8adfd8e3cb41ec99e9ab353f72eb74
+          - id: pair_617e4be4a91948bebe6bf859a46b513a
+            name: Authorization
+            value: Bearer {{ _.TOKEN }}
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.BASE_URL }}/locais"
+        name: listar local
+        meta:
+          id: req_cd4b056a2a114a0eb8e79f96c0b287db
+          created: 1756521857902
+          modified: 1756763285453
+          isPrivate: false
+          description: ""
+          sortKey: -1756520812670
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/11.5.0
+            id: pair_a1e1bc36f4c243e19f267c35088fce71
+          - id: pair_e025b4c6e2644924aa5ba2f3b6f57c6a
+            name: Authorization
+            value: Bearer {{ _.TOKEN }}
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.BASE_URL }}/locais"
+        name: cadastrar local
+        meta:
+          id: req_c7e32d56b53c4d72beb49b6dd96df38d
+          created: 1756521857904
+          modified: 1756936366439
+          isPrivate: false
+          description: ""
+          sortKey: -1756520812770
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "nome": "Unidade Central",
+              "cep": "12345-678",
+              "especialidade": "Matemática, Física, Química",
+              "vagasManha": 10,
+              "vagasTarde": 15,
+              "vagasNoite": 8,
+              "vagasIntegrais": 5
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+            id: pair_33b84597c4e340e4abac9650f1538a85
+          - name: User-Agent
+            value: insomnia/11.5.0
+            id: pair_00eca72831d44873911b05f7efde782b
+          - id: pair_2951b1898eed4afca19e18168644abdf
+            name: Authorization
+            value: Bearer {{ _.TOKEN }}
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.BASE_URL }}/locais/1"
+        name: editar local
+        meta:
+          id: req_3166cdc51aa14be79b6574d1f2a71bad
+          created: 1756521857905
+          modified: 1756936517834
+          isPrivate: false
+          description: ""
+          sortKey: -1756520812720
+        method: PUT
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "nome": "Unidade Central editada",
+              "cep": "12345-678",
+              "especialidade": "Matemática, Física, Química",
+              "vagasManha": 10,
+              "vagasTarde": 15,
+              "vagasNoite": 8,
+              "vagasIntegrais": 5
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+            id: pair_67bda6bcdbcd40a8b4e696c66d602d33
+          - name: User-Agent
+            value: insomnia/11.5.0
+            id: pair_456463988b2645a2a58fa6b76e20ca8b
+          - id: pair_a53b9f2f968949d1bb18c834dd8d77e5
+            name: Authorization
+            value: Bearer {{ _.TOKEN }}
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.BASE_URL }}/locais/1"
+        name: deletar local por id
+        meta:
+          id: req_bcb0596d615847939c1a8ddb92ff3355
+          created: 1756521857906
+          modified: 1756763294945
+          isPrivate: false
+          description: ""
+          sortKey: -1756520810990
+        method: DELETE
+        headers:
+          - name: User-Agent
+            value: insomnia/11.5.0
+            id: pair_19a8fa42495146b093391d6652a80a4d
+          - id: pair_a3920aa768814e2690bd373f2976c077
+            name: Authorization
+            value: Bearer {{ _.TOKEN }}
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+  - name: plantão
+    meta:
+      id: fld_f7bb939f69c24d729ef61759eae932a4
+      created: 1756521867964
+      modified: 1756944629713
+      sortKey: -1756377779574.25
+      description: ""
+    children:
+      - url: "{{ _.BASE_URL }}/plantoes/1"
+        name: listar plantão por id
+        meta:
+          id: req_2f088cd169084b1bbb18758aa1967cdf
+          created: 1756521867966
+          modified: 1756936824250
+          isPrivate: false
+          description: ""
+          sortKey: -1756520811774
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/11.5.0
+            id: pair_a05f1f8c32584f028b605a42f1d44dea
+          - id: pair_380e2b5b5a8840c691dfaa65e5c80003
+            name: Authorization
+            value: Bearer {{ _.TOKEN }}
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.BASE_URL }}/plantoes"
+        name: listar plantão
+        meta:
+          id: req_e411f4f8062b49f1ad6297fe9264d05d
+          created: 1756521867967
+          modified: 1756949315300
+          isPrivate: false
+          description: ""
+          sortKey: -1756520812670
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/11.5.0
+            id: pair_e402f8ce46b5450a93f297d8c868128c
+          - id: pair_9547865474d34a46806a1032b6e2dc71
+            name: Authorization
+            value: Bearer {{ _.TOKEN }}
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.BASE_URL }}/plantoes"
+        name: cadastrar plantão
+        meta:
+          id: req_a772baed54a644b5b3040b0cb52a6415
+          created: 1756521867968
+          modified: 1756949677348
+          isPrivate: false
+          description: ""
+          sortKey: -1756520812770
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "nome": "Plantão de Matemática",
+              "aluno": 2,
+              "local": 1,
+              "horas": 4.0,
+              "turno": "MANHÃ",
+              "dataPlantao": "2024-03-15",
+              "semestre": "2025.1"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+            id: pair_f26e32dfdda04d3490716abc3df76dd8
+          - name: User-Agent
+            value: insomnia/11.5.0
+            id: pair_a2466584c076470b8c83dc38636a2c33
+          - id: pair_c99b82a7a6a244d0adf73b32ce853f4e
+            name: Authorization
+            value: Bearer {{ _.TOKEN }}
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.BASE_URL }}/plantoes/1"
+        name: editar plantão
+        meta:
+          id: req_ff34b2da3bed4303b56652081f74acac
+          created: 1756521867970
+          modified: 1756949631770
+          isPrivate: false
+          description: ""
+          sortKey: -1756520812720
+        method: PUT
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "nome": "Plantão unimed editado",
+              "aluno": 2,
+              "local": 1,
+              "horas": 4,
+              "turno": "MANHÃ",
+            	"dataPlantao": "2024-03-15",
+              "semestre": "2025.1"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+            id: pair_55e622b7a9b7478e8bbae6eaea3d5459
+          - name: User-Agent
+            value: insomnia/11.5.0
+            id: pair_a1c67fc16c4d463589cc806583169a19
+          - id: pair_1ad79467092748d99eb74e277f5ce265
+            name: Authorization
+            value: Bearer {{ _.TOKEN }}
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.BASE_URL }}/plantoes/1"
+        name: deletar plantão por id
+        meta:
+          id: req_58daf6cedd5f496da32a6e51ed7d5944
+          created: 1756521867971
+          modified: 1756763305450
+          isPrivate: false
+          description: ""
+          sortKey: -1756520810990
+        method: DELETE
+        headers:
+          - name: User-Agent
+            value: insomnia/11.5.0
+            id: pair_0e685c16974c45419e6ed8eaa9ee9f98
+          - id: pair_b16b7c7560044c2ca5d823015af491e6
+            name: Authorization
+            value: Bearer {{ _.TOKEN }}
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+  - name: Autenticação
+    meta:
+      id: fld_0a3211959bbe41219892e08870ee3271
+      created: 1756569689364
+      modified: 1756569689364
+      sortKey: -1756569689364
+      description: ""
+    children:
+      - url: "{{ _.BASE_URL }}/auth/login"
+        name: Login admin ou usuario
+        meta:
+          id: req_8d2b02ae5eca47c5bc2d81dfa3aef428
+          created: 1756572021655
+          modified: 1756948724233
+          isPrivate: false
+          description: >+
+            # Login de usuarios
+
+            Nessa requisição você pode fazer o login de usuarios. Naturalmente,
+            após o cadastro dos outros 2 usuarios você poderá fazer o login com
+            as 3 principais roles abaixo. 
+
+
+
+            ## Login administrador
+
+            Já vem criado por default assim que a aplicação é rodada pela
+            primeira vez, ele tem permissão para cadastrar outros usuarios.
+
+            ```Json
+
+            {
+              "email": "admin@meuapp.com",
+              "senha": "admin123"
+            }
+
+            ```
+
+
+            ## Login Aluno
+
+            Deve ser criado pelo admin. O aluno só tem permissão para listar
+            locais, plantões e alunos. Ele também pode deletar a si mesmo.
+
+            ```Json
+
+            {
+            	"email": "teste2@email.com",
+            	"senha": "teste2025"
+            }
+
+            ```
+
+
+            ## Login Aluno
+
+            Deve ser criado pelo admin. O professor só tem permissão para listar
+            locais, plantões e alunos. Ele também pode deletar a si mesmo.
+
+            ```Json
+
+
+            {
+            	"email": "teste1@email.com",
+            	"senha": "teste2025"
+            }
+
+            ```
+
+          sortKey: -1756572021655
+        method: POST
+        body:
+          mimeType: application/json
+          text: |+
+            {
+              "email": "admin@meuapp.com",
+              "senha": "admin123"
+            }
+
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/11.5.0
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.BASE_URL }}/usuarios"
+        name: cadastrar professor
+        meta:
+          id: req_dcb2c6ffa34d4151b7e4ba0f7697fff0
+          created: 1756760602928
+          modified: 1756948645479
+          isPrivate: false
+          description: |-
+            # Cadastro de professor
+            Somente o admin pode cadastrar os professores.
+          sortKey: -1756533631504.25
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "nome": "João professor",
+              "email": "teste1@email.com",
+            	"senha": "teste2025",
+              "telefone": "11999999999",
+              "especializacao": "Matemática",
+            	"horasAFazer": null,
+            	"horasFeitas": null,
+              "tipo": "PROFESSOR",
+            	"semestre": "2025.1"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+            id: pair_3474bb142bff45de8ee843fb28b9732a
+          - name: User-Agent
+            value: insomnia/11.5.0
+            id: pair_c05ff4f396a54d589046307deb9e0ae1
+          - id: pair_5efc52f701264f68aaa352c2b46e7500
+            name: Authorization
+            value: Bearer {{ _.TOKEN }}
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.BASE_URL }}/usuarios"
+        name: cadastrar aluno
+        meta:
+          id: req_1cdf337f2fb243dcabe232d1b34643cf
+          created: 1756760684779
+          modified: 1756948639917
+          isPrivate: false
+          description: >-
+            # Cadastro de aluno
+
+            Somente o coordenador pode cadastrar um aluno. Os alunos devem
+            participar de plantões para receber suas horas. 
+          sortKey: -1756533631604.25
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "nome": "João aluno",
+              "email": "teste2@email.com",
+            	"senha": "teste2025",
+              "telefone": "11999999999",
+              "especializacao": "Matemática",
+              "horasAFazer": 40,
+              "horasFeitas": 0,
+              "tipo": "ALUNO",
+            	"semestre": "2025.1"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+            id: pair_30b2d0453ab0402a8bd968b2b7392e7a
+          - name: User-Agent
+            value: insomnia/11.5.0
+            id: pair_b0395d2290a8420a9cf5b5186bac7d2d
+          - id: pair_da32f298704f42d6b61da6a037b19e10
+            name: Authorization
+            value: Bearer {{ _.TOKEN }}
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+cookieJar:
+  name: Default Jar
+  meta:
+    id: jar_727d68bc2815184489a307458dd20f3e92f0680f
+    created: 1756494197167
+    modified: 1756936478632
+  cookies:
+    - key: JSESSIONID
+      value: 301C571A0A2AAE0A79282A1196F924C9
+      domain: localhost
+      path: /
+      httpOnly: true
+      hostOnly: true
+      creation: 2025-08-30T16:41:51.682Z
+      lastAccessed: 2025-09-03T21:54:38.632Z
+      id: 444f1a61-f3ec-409b-8252-3b0ce6be292c
+environments:
+  name: Base Environment
+  meta:
+    id: env_727d68bc2815184489a307458dd20f3e92f0680f
+    created: 1756494197163
+    modified: 1756752583791
+    isPrivate: false
+  data:
+    BASE_URL: http://localhost:8080
+    TOKEN: "{% response 'body', 'req_8d2b02ae5eca47c5bc2d81dfa3aef428',
+      'b64::JC50b2tlbg==::46b', 'never', 60 %}"
